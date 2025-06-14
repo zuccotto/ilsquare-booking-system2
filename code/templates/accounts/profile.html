@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}プロフィール - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>プロフィール</h1>
+    <p>登録情報の確認・変更</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <form method="post" class="profile-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username">ユーザーID</label>
+                <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                <small class="help-text">ユーザーIDは変更できません</small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="last_name">姓 <span class="required">*</span></label>
+                    <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+                </div>
+                
+                <div class="form-group half">
+                    <label for="first_name">名 <span class="required">*</span></label>
+                    <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone_number">電話番号 <span class="required">*</span></label>
+                <input type="text" name="phone_number" class="form-control" value="{{ user.phone_number }}" required>
+                <small class="help-text">例: 090-1234-5678</small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">メールアドレス <span class="required">*</span></label>
+                <input type="email" name="email" class="form-control" value="{{ user.email|default:'' }}" required>
+                <small class="help-text">連絡用のメールアドレスを入力してください</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">更新</button>
+                <a href="{% url 'mypage' %}" class="btn btn-outline">戻る</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

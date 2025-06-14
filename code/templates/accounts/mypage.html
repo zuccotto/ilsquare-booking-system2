@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}マイページ - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>こんにちは、{{ user.last_name }} {{ user.first_name }}さん</h1>
+    <p>予約状況やアカウント情報を確認できます</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- メニューカード -->
+<section class="menu-section">
+    <div class="menu-grid">
+        <a href="{% url 'reserve_step1' %}" class="menu-card">
+            <div class="menu-icon">📅</div>
+            <div class="menu-content">
+                <h3>新規予約</h3>
+                <p>スペースを予約する</p>
+            </div>
+        </a>
+
+        <a href="{% url 'reservations' %}" class="menu-card">
+            <div class="menu-icon">📋</div>
+            <div class="menu-content">
+                <h3>予約履歴</h3>
+                <p>現在の予約状況を確認</p>
+            </div>
+        </a>
+
+        <a href="{% url 'profile' %}" class="menu-card">
+            <div class="menu-icon">👤</div>
+            <div class="menu-content">
+                <h3>プロフィール</h3>
+                <p>登録情報の確認・変更</p>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- 現在の予約 -->
+<section class="current-reservations">
+    <h2>現在の予約</h2>
+    
+    {% if current_reservations %}
+        <div class="reservation-list">
+            {% for reservation in current_reservations %}
+                <div class="reservation-item">
+                    <div class="reservation-info">
+                        <div class="reservation-date">
+                            <strong>{{ reservation.reservation_date|date:"m月d日（D）" }}</strong>
+                        </div>
+                        <div class="reservation-details">
+                            <p class="space-name">{{ reservation.space.name }}</p>
+                            <p class="time-slot">
+                                {{ reservation.start_time|time:"H:i" }} - {{ reservation.end_time|time:"H:i" }}
+                            </p>
+                            {% if reservation.purpose %}
+                                <p class="purpose">利用目的: {{ reservation.purpose }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="reservation-actions">
+                        <div class="amount">{{ reservation.total_amount|floatformat:0 }}円</div>
+                        <a href="{% url 'reservation_detail' reservation.id %}" class="btn btn-sm btn-outline">詳細</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="section-footer">
+            <a href="{% url 'reservations' %}" class="btn btn-outline">予約履歴を見る</a>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>現在予約はありません</p>
+            <a href="{% url 'reserve_step1' %}" class="btn btn-primary">新規予約</a>
+        </div>
+    {% endif %}
+</section>
+
+<!-- お知らせ -->
+<section class="notices">
+    <h2>お知らせ</h2>
+    <div class="notice-list">
+        <div class="notice-item">
+            <div class="notice-date">2025年6月14日</div>
+            <div class="notice-content">
+                <h4>新しいスペースのご案内</h4>
+                <p>完全個室Fがリニューアルオープンしました。充実した設備でより快適にご利用いただけます。</p>
+            </div>
+        </div>
+        
+        <div class="notice-item">
+            <div class="notice-date">2025年6月10日</div>
+            <div class="notice-content">
+                <h4>システムメンテナンスのお知らせ</h4>
+                <p>6月15日（土）AM2:00-4:00にシステムメンテナンスを実施します。予約システムが一時利用できません。</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

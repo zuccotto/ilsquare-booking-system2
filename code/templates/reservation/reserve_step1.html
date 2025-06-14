@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}予約申込（日付選択） - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>予約申込 - 日付選択</h1>
+    <p>ご利用希望日を選択してください</p>
+    <div class="step-indicator">
+        <span class="step active">1. 日付選択</span>
+        <span class="step">2. 時間・スペース選択</span>
+        <span class="step">3. 予約確認</span>
+        <span class="step">4. 完了</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="reservation-step1">
+    <div class="date-selection-container">
+        <h3>利用可能日程</h3>
+        <p class="help-text">平日のみ、6日前まで予約可能です</p>
+        
+        <div class="date-list">
+            {% for date_info in available_dates %}
+                <a href="{% url 'reserve_step2' date_info.date_string %}" class="date-card">
+                    <div class="date-main">{{ date_info.display_string }}</div>
+                    <div class="date-full">{{ date_info.full_display }}</div>
+                </a>
+            {% empty %}
+                <div class="empty-state">
+                    <p>現在予約可能な日程がありません</p>
+                    <small>平日のみ予約を受け付けています</small>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="reservation-info">
+        <h4>ご利用について</h4>
+        <ul>
+            <li><strong>営業時間:</strong> 平日 9:00〜18:00</li>
+            <li><strong>予約可能期間:</strong> 6日前まで</li>
+            <li><strong>予約単位:</strong> 1時間単位</li>
+            <li><strong>キャンセル:</strong> 前日まで可能</li>
+        </ul>
+        
+        <h4>スペース種別</h4>
+        <div class="space-types">
+            <div class="space-type-item">
+                <div class="space-type-name">半個室</div>
+                <div class="space-type-price">500円/時間</div>
+                <div class="space-type-desc">ノートPC、外付けモニター、ヘッドセット</div>
+            </div>
+            <div class="space-type-item">
+                <div class="space-type-name">完全個室</div>
+                <div class="space-type-price">1,000円/時間</div>
+                <div class="space-type-desc">ノートPC、外付けモニター、ヘッドセット</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-actions">
+    <a href="{% url 'top' %}" class="btn btn-outline">トップページに戻る</a>
+</div>
+
+<style>
+.step-indicator {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.step {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #666;
+    border: 2px solid #e9ecef;
+}
+
+.step.active {
+    background-color: #2c5aa0;
+    color: white;
+    border-color: #2c5aa0;
+}
+
+.reservation-step1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.date-selection-container {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.date-selection-container h3 {
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+.help-text {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.date-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.date-card {
+    display: block;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-decoration: none;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.date-card:hover {
+    background: #e3f2fd;
+    border-color: #2c5aa0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 90, 160, 0.15);
+}
+
+.date-main {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 0.25rem;
+}
+
+.date-full {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.reservation-info {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.reservation-info h4 {
+    color: #2c5aa0;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.reservation-info h4:first-child {
+    margin-top: 0;
+}
+
+.reservation-info ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.reservation-info li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.space-types {
+    display: grid;
+    gap: 1rem;
+}
+
+.space-type-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #2c5aa0;
+}
+
+.space-type-name {
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 0.25rem;
+}
+
+.space-type-price {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.space-type-desc {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .reservation-step1 {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .step-indicator {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .step {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+</style>
+{% endblock %}

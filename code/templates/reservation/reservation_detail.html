@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}予約詳細 - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>予約詳細</h1>
+    <p>予約内容の確認</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="reservation-detail">
+            <h3>予約情報</h3>
+            
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>予約番号</label>
+                    <div class="value">#{{ reservation.id }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <label>利用者</label>
+                    <div class="value">{{ reservation.user.last_name }} {{ reservation.user.first_name }}さん</div>
+                </div>
+                
+                <div class="detail-item">
+                    <label>スペース</label>
+                    <div class="value">{{ reservation.space.name }} ({{ reservation.space.get_space_type_display }})</div>
+                </div>
+                
+                <div class="detail-item">
+                    <label>利用日</label>
+                    <div class="value">{{ reservation.reservation_date|date:"Y年m月d日（D）" }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <label>利用時間</label>
+                    <div class="value">{{ reservation.start_time|time:"H:i" }} 〜 {{ reservation.end_time|time:"H:i" }}</div>
+                </div>
+                
+                {% if reservation.purpose %}
+                <div class="detail-item">
+                    <label>利用目的</label>
+                    <div class="value">{{ reservation.purpose }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="detail-item">
+                    <label>予約状態</label>
+                    <div class="value status-{{ reservation.status|lower }}">
+                        {{ reservation.get_status_display }}
+                    </div>
+                </div>
+                
+                <div class="detail-item">
+                    <label>利用料金</label>
+                    <div class="value amount">{{ reservation.total_amount }}円</div>
+                </div>
+                
+                <div class="detail-item">
+                    <label>予約日時</label>
+                    <div class="value">{{ reservation.created_at|date:"Y年m月d日 H:i" }}</div>
+                </div>
+            </div>
+            
+            {% if reservation.payment %}
+            <h3>支払い情報</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>支払い方法</label>
+                    <div class="value">{{ reservation.payment.get_payment_method_display }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <label>支払い状態</label>
+                    <div class="value payment-{{ reservation.payment.payment_status|lower }}">
+                        {{ reservation.payment.get_payment_status_display }}
+                    </div>
+                </div>
+                
+                {% if reservation.payment.transaction_id %}
+                <div class="detail-item">
+                    <label>取引ID</label>
+                    <div class="value">{{ reservation.payment.transaction_id }}</div>
+                </div>
+                {% endif %}
+                
+                {% if reservation.payment.paid_at %}
+                <div class="detail-item">
+                    <label>支払い完了日時</label>
+                    <div class="value">{{ reservation.payment.paid_at|date:"Y年m月d日 H:i" }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            {% if reservation.status == 'CONFIRMED' %}
+                <a href="{% url 'cancel_reservation' reservation.id %}" class="btn btn-cancel">予約をキャンセル</a>
+            {% endif %}
+            <a href="{% url 'reservations' %}" class="btn btn-outline">予約一覧に戻る</a>
+            <a href="{% url 'mypage' %}" class="btn btn-primary">マイページ</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.detail-item label {
+    font-weight: bold;
+    color: #666;
+    margin: 0;
+}
+
+.detail-item .value {
+    font-weight: 500;
+    color: #333;
+}
+
+.amount {
+    font-size: 1.2rem;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.status-confirmed {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.status-cancelled {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.payment-completed {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.payment-pending {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+}
+
+.btn-cancel:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+</style>
+{% endblock %}

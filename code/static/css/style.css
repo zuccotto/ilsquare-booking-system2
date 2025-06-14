@@ -1,0 +1,729 @@
+/* static/css/style.css */
+/* iLスクエア予約システム メインスタイルシート */
+
+/* ===========================================
+   リセット・基本設定
+   =========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', 'Meiryo', 'メイリオ', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ===========================================
+   ヘッダー
+   =========================================== */
+
+.header {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.logo h1 {
+    font-size: 1.8rem;
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.logo a {
+    text-decoration: none;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.nav-link:hover {
+    background-color: #f0f0f0;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: inherit;
+}
+
+.user-info {
+    color: #666;
+    margin-right: 1rem;
+}
+
+/* ===========================================
+   メインコンテンツ
+   =========================================== */
+
+.main {
+    min-height: calc(100vh - 120px);
+    padding: 2rem 0;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* ===========================================
+   メッセージ
+   =========================================== */
+
+.messages {
+    margin-bottom: 2rem;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.message-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* ===========================================
+   ボタン
+   =========================================== */
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: #2c5aa0;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1e3f73;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: #2c5aa0;
+    border: 2px solid #2c5aa0;
+}
+
+.btn-outline:hover {
+    background-color: #2c5aa0;
+    color: white;
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* ===========================================
+   トップページ
+   =========================================== */
+
+.hero {
+    background: linear-gradient(135deg, #2c5aa0 0%, #4a76c8 100%);
+    color: white;
+    text-align: center;
+    padding: 4rem 0;
+    margin-bottom: 4rem;
+}
+
+.hero-title {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.services {
+    margin-bottom: 4rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2.2rem;
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.service-card {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.service-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.service-header h3 {
+    font-size: 1.4rem;
+    color: #2c5aa0;
+}
+
+.price {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.price span {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.service-features ul {
+    list-style: none;
+}
+
+.service-features li {
+    padding: 0.3rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.service-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #27ae60;
+    font-weight: bold;
+}
+
+/* ===========================================
+   利用方法・ステップ
+   =========================================== */
+
+.how-to-use {
+    margin-bottom: 4rem;
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.step {
+    text-align: center;
+    padding: 2rem;
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background-color: #2c5aa0;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+.step h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: #2c5aa0;
+}
+
+/* ===========================================
+   CTA（コールトゥアクション）
+   =========================================== */
+
+.cta {
+    background-color: #f8f9fa;
+    text-align: center;
+    padding: 3rem 0;
+    border-radius: 8px;
+}
+
+.cta h2 {
+    font-size: 2rem;
+    color: #2c5aa0;
+    margin-bottom: 1rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/* ===========================================
+   フォーム
+   =========================================== */
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.required {
+    color: #e74c3c;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #2c5aa0;
+}
+
+.help-text {
+    display: block;
+    margin-top: 0.25rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.error-message {
+    margin-top: 0.5rem;
+    color: #e74c3c;
+    font-size: 0.9rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.form-footer a {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ===========================================
+   マイページ
+   =========================================== */
+
+.menu-section {
+    margin-bottom: 3rem;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.menu-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.menu-card:hover {
+    transform: translateY(-4px);
+}
+
+.menu-icon {
+    font-size: 2rem;
+}
+
+.menu-card h3 {
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+/* ===========================================
+   予約関連
+   =========================================== */
+
+.reservation-list {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.reservation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.reservation-item:last-child {
+    border-bottom: none;
+}
+
+.reservation-date {
+    margin-bottom: 0.5rem;
+}
+
+.space-name {
+    color: #2c5aa0;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.time-slot {
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.purpose {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.reservation-actions {
+    text-align: right;
+}
+
+.amount {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 0.5rem;
+}
+
+.section-footer {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* ===========================================
+   スペース一覧
+   =========================================== */
+
+.spaces-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.space-card {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.space-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.space-name {
+    font-size: 1.4rem;
+    color: #2c5aa0;
+    margin: 0;
+}
+
+.space-type {
+    background-color: #f8f9fa;
+    color: #666;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.space-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.space-price span {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.info-item {
+    margin-bottom: 0.75rem;
+}
+
+.space-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.feature-tag {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.space-actions {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* ===========================================
+   お知らせ
+   =========================================== */
+
+.notices {
+    margin-bottom: 3rem;
+}
+
+.notice-list {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.notice-item {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.notice-item:last-child {
+    border-bottom: none;
+}
+
+.notice-date {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.notice-content h4 {
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+/* ===========================================
+   空の状態
+   =========================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* ===========================================
+   ページアクション
+   =========================================== */
+
+.page-actions {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.page-actions .btn {
+    margin: 0 0.5rem;
+}
+
+/* ===========================================
+   フッター
+   =========================================== */
+
+.footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: auto;
+}
+
+/* ===========================================
+   レスポンシブ（PC専用のため簡易対応）
+   =========================================== */
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .service-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .reservation-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .reservation-actions {
+        text-align: left;
+        width: 100%;
+    }
+}

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}予約キャンセル - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>予約キャンセル</h1>
+    <p>予約をキャンセルしますか？</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="cancel-warning">
+            <h3>⚠️ 予約キャンセルの確認</h3>
+            <p>以下の予約をキャンセルしますか？<br>キャンセル後は元に戻すことができません。</p>
+        </div>
+        
+        <div class="reservation-summary">
+            <h4>キャンセル対象の予約</h4>
+            
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <label>予約番号</label>
+                    <div class="value">#{{ reservation.id }}</div>
+                </div>
+                
+                <div class="summary-item">
+                    <label>スペース</label>
+                    <div class="value">{{ reservation.space.name }} ({{ reservation.space.get_space_type_display }})</div>
+                </div>
+                
+                <div class="summary-item">
+                    <label>利用日時</label>
+                    <div class="value">
+                        {{ reservation.reservation_date|date:"Y年m月d日（D）" }}<br>
+                        {{ reservation.start_time|time:"H:i" }} 〜 {{ reservation.end_time|time:"H:i" }}
+                    </div>
+                </div>
+                
+                {% if reservation.purpose %}
+                <div class="summary-item">
+                    <label>利用目的</label>
+                    <div class="value">{{ reservation.purpose }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="summary-item">
+                    <label>利用料金</label>
+                    <div class="value amount">{{ reservation.total_amount }}円</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cancel-notice">
+            <h4>キャンセルポリシー</h4>
+            <ul>
+                <li>前日までのキャンセルは無料です</li>
+                <li>キャンセル後、他の方がご利用できるようになります</li>
+                <li>キャンセル処理は即座に完了します</li>
+            </ul>
+        </div>
+        
+        <form method="post" class="cancel-form">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-cancel btn-large">予約をキャンセルする</button>
+                <a href="{% url 'reservation_detail' reservation.id %}" class="btn btn-outline">キャンセルしない</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.cancel-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.cancel-warning h3 {
+    color: #856404;
+    margin-bottom: 1rem;
+}
+
+.cancel-warning p {
+    color: #856404;
+    margin: 0;
+}
+
+.reservation-summary {
+    margin-bottom: 2rem;
+}
+
+.reservation-summary h4 {
+    color: #2c5aa0;
+    margin-bottom: 1rem;
+}
+
+.summary-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.summary-item label {
+    font-weight: bold;
+    color: #666;
+    margin: 0;
+}
+
+.summary-item .value {
+    font-weight: 500;
+    color: #333;
+    text-align: right;
+}
+
+.amount {
+    font-size: 1.2rem;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.cancel-notice {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.cancel-notice h4 {
+    color: #2c5aa0;
+    margin-bottom: 1rem;
+}
+
+.cancel-notice ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.cancel-notice li {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+}
+
+.btn-cancel:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+</style>
+{% endblock %}

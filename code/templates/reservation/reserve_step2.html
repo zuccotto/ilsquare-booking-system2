@@ -1,0 +1,628 @@
+{% extends 'base.html' %}
+
+{% block title %}予約申込（スペース・時間選択） - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>予約申込 - スペース・時間選択</h1>
+    <p>{{ date_display }} のスペースと時間を選択してください</p>
+    <div class="step-indicator">
+        <span class="step completed">1. 日付選択</span>
+        <span class="step active">2. 時間・スペース選択</span>
+        <span class="step">3. 予約確認</span>
+        <span class="step">4. 完了</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="reservation-step2-new">
+    <form method="post" action="{% url 'reserve_step3' %}" id="reservationForm">
+        {% csrf_token %}
+        <input type="hidden" name="date" value="{{ date_string }}">
+        
+        <!-- スペース選択セクション -->
+        <div class="space-selection-section">
+            <h3>スペース選択</h3>
+            <p class="help-text">利用したいスペースを選択してください</p>
+            
+            <div class="space-select-container">
+                <select name="selected_space" id="spaceSelect" class="space-select">
+                    <option value="">スペースを選択してください</option>
+                    {% for space_data in spaces_with_availability %}
+                        <option value="{{ space_data.space.id }}" data-space-id="{{ space_data.space.id }}">
+                            {{ space_data.space.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- 選択されたスペースの詳細表示エリア -->
+            <div class="selected-space-details-area" id="selectedSpaceDetailsArea" style="display: none;">
+                <h4>選択されたスペース詳細</h4>
+                <div id="spaceDetailsContent">
+                    <!-- 選択されたスペースの詳細がここに表示される -->
+                </div>
+            </div>
+            
+            <!-- 開始時刻選択テーブル -->
+            <div class="start-time-selection-area" id="startTimeSelectionArea" style="display: none;">
+                <h4>開始時刻選択</h4>
+                <p class="help-text">利用を開始する時刻を選択してください</p>
+                
+                <div class="time-table-container">
+                    <table class="start-time-table" id="startTimeTable">
+                        <thead>
+                            <tr>
+                                <th>開始時刻</th>
+                                <th>空き状況</th>
+                            </tr>
+                        </thead>
+                        <tbody id="startTimeTableBody">
+                            <!-- 開始時刻の選択肢がここに表示される -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'reserve_step1' %}" class="btn btn-outline">日付選択に戻る</a>
+        </div>
+    </form>
+</div>
+
+<!-- 時間帯データをJavaScriptで使用するため -->
+<script type="application/json" id="spacesData">
+{{ spaces_with_availability|safe }}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // スペースデータを取得（JSONとして埋め込まれたデータを解析）
+    const spacesData = {
+        {% for space_data in spaces_with_availability %}
+        "{{ space_data.space.id }}": {
+            "space": {
+                "id": {{ space_data.space.id }},
+                "name": "{{ space_data.space.name }}",
+                "space_type_display": "{{ space_data.space.get_space_type_display }}",
+                "hourly_rate": {{ space_data.space.hourly_rate }},
+                "equipment": "{{ space_data.space.equipment }}",
+                "description": "{{ space_data.space.description }}"
+            },
+            "time_slots": [
+                {% for slot in space_data.time_slots %}
+                {
+                    "start_time_str": "{{ slot.start_time_str }}",
+                    "end_time_str": "{{ slot.end_time_str }}",
+                    "is_available": {{ slot.is_available|yesno:"true,false" }},
+                    "slot_id": "{{ slot.slot_id }}"
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    const timeSelectionSection = document.getElementById('timeSelectionSection');
+    const selectedSpaceInfo = document.getElementById('selectedSpaceInfo');
+    const timeSlotsContainer = document.getElementById('timeSlotsContainer');
+    const selectionSummary = document.getElementById('selectionSummary');
+    const selectionList = document.getElementById('selectionList');
+    const totalAmountElement = document.getElementById('totalAmount');
+    const confirmButton = document.getElementById('confirmButton');
+    
+    let selectedSpaceId = null;
+    let selectedSlots = [];
+    let totalAmount = 0;
+
+    // スペース選択リストボックスのイベントリスナー
+    const spaceSelect = document.getElementById('spaceSelect');
+    spaceSelect.addEventListener('change', function() {
+        const spaceId = this.value;
+        if (spaceId) {
+            selectSpace(spaceId);
+        } else {
+            // 選択がクリアされた場合
+            clearSpaceSelection();
+        }
+    });
+
+    function selectSpace(spaceId) {
+        selectedSpaceId = spaceId;
+        const spaceData = spacesData[spaceId];
+        
+        // 詳細表示エリアに情報を表示
+        const detailsArea = document.getElementById('selectedSpaceDetailsArea');
+        const detailsContent = document.getElementById('spaceDetailsContent');
+        
+        detailsContent.innerHTML = `
+            <div class="space-detail-info">
+                <div class="detail-row">
+                    <span class="detail-label">スペース名:</span>
+                    <span class="detail-value">${spaceData.space.name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">種別:</span>
+                    <span class="detail-value">${spaceData.space.space_type_display}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">料金:</span>
+                    <span class="detail-value">${spaceData.space.hourly_rate}円/時間</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">利用可能時間:</span>
+                    <span class="detail-value available-time">${spacesData[spaceId].time_slots.filter(slot => slot.is_available).length}時間</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">設備:</span>
+                    <span class="detail-value">${spaceData.space.equipment}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">説明:</span>
+                    <span class="detail-value">${spaceData.space.description}</span>
+                </div>
+            </div>
+        `;
+        
+        detailsArea.style.display = 'block';
+        
+        // 開始時刻選択テーブルを表示
+        displayStartTimeTable(spaceData.time_slots, spaceId);
+    }
+
+    function clearSpaceSelection() {
+        selectedSpaceId = null;
+        
+        // 詳細表示を非表示
+        const detailsArea = document.getElementById('selectedSpaceDetailsArea');
+        detailsArea.style.display = 'none';
+        
+        // 開始時刻選択を非表示
+        const startTimeArea = document.getElementById('startTimeSelectionArea');
+        startTimeArea.style.display = 'none';
+    }
+
+    function displayStartTimeTable(timeSlots, spaceId) {
+        const startTimeArea = document.getElementById('startTimeSelectionArea');
+        const tableBody = document.getElementById('startTimeTableBody');
+        
+        let html = '';
+        timeSlots.forEach(slot => {
+            const statusText = slot.is_available ? '利用可能' : '予約済み';
+            const statusClass = slot.is_available ? 'available' : 'unavailable';
+            const clickAction = slot.is_available ? 
+                `onclick="selectStartTime('${spaceId}', '${slot.start_time_str}')"` : '';
+            const rowClass = slot.is_available ? 'clickable' : 'disabled';
+            
+            html += `
+                <tr class="time-row ${rowClass}" ${clickAction}>
+                    <td class="time-cell">${slot.start_time_str}</td>
+                    <td class="status-cell ${statusClass}">${statusText}</td>
+                </tr>
+            `;
+        });
+        
+        tableBody.innerHTML = html;
+        startTimeArea.style.display = 'block';
+    }
+
+    // グローバル関数として定義
+    window.selectStartTime = function(spaceId, startTime) {
+        // 終了時刻選択画面に遷移
+        const dateString = '{{ date_string }}';
+        window.location.href = `/reserve/step2-5/${dateString}/${spaceId}/${startTime}/`;
+    }
+});
+</script>
+
+<style>
+.step-indicator {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.step {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #666;
+    border: 2px solid #e9ecef;
+}
+
+.step.active {
+    background-color: #2c5aa0;
+    color: white;
+    border-color: #2c5aa0;
+}
+
+.step.completed {
+    background-color: #27ae60;
+    color: white;
+    border-color: #27ae60;
+}
+
+.reservation-step2-new {
+    margin-bottom: 3rem;
+}
+
+.space-selection-section,
+.time-selection-section,
+.selection-summary {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.space-selection-section h3,
+.time-selection-section h3 {
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+.help-text {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.space-select-container {
+    margin-bottom: 1.5rem;
+}
+
+.space-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.space-select:hover {
+    border-color: #2c5aa0;
+    box-shadow: 0 2px 8px rgba(44, 90, 160, 0.1);
+}
+
+.space-select:focus {
+    outline: none;
+    border-color: #2c5aa0;
+    box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+}
+
+.space-select option {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.selected-space-details-area {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    margin-bottom: 1.5rem;
+}
+
+.selected-space-details-area h4 {
+    color: #2c5aa0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 0.5rem;
+}
+
+.space-detail-info {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #333;
+    min-width: 120px;
+    margin-right: 1rem;
+}
+
+.detail-value {
+    color: #666;
+}
+
+.detail-value.available-time {
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.start-time-selection-area {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.start-time-selection-area h4 {
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 0.5rem;
+}
+
+.time-table-container {
+    margin-top: 1rem;
+}
+
+.start-time-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.start-time-table th {
+    background-color: #2c5aa0;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.start-time-table td {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.time-row.clickable {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.time-row.clickable:hover {
+    background-color: #e3f2fd;
+}
+
+.time-row.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.time-cell {
+    font-weight: 500;
+    color: #333;
+}
+
+.status-cell.available {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.status-cell.unavailable {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.selected-space-info {
+    background: #e3f2fd;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.selected-space-details {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.selected-space-details h4 {
+    color: #2c5aa0;
+    margin: 0;
+}
+
+.legend {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.symbol {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.symbol.available {
+    color: #27ae60;
+}
+
+.symbol.unavailable {
+    color: #e74c3c;
+}
+
+.symbol.selected {
+    color: #2c5aa0;
+}
+
+.time-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.time-slot-item {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.time-slot-item.available {
+    background: #f8f9fa;
+}
+
+.time-slot-item.unavailable {
+    background: #ffe6e6;
+}
+
+.time-range {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.slot-button {
+    width: 50px;
+    height: 50px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.slot-button.available:hover {
+    background-color: #e3f2fd;
+    transform: scale(1.1);
+}
+
+.slot-button.selected {
+    background-color: #2c5aa0;
+    color: white;
+}
+
+.slot-button.unavailable {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.selection-summary h4 {
+    color: #2c5aa0;
+    margin-bottom: 1rem;
+}
+
+.selection-list {
+    min-height: 50px;
+    margin-bottom: 1rem;
+}
+
+.no-selection {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+.selection-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid #2c5aa0;
+}
+
+.selection-space {
+    font-weight: bold;
+    color: #2c5aa0;
+}
+
+.selection-time {
+    color: #666;
+}
+
+.selection-price {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.total-amount {
+    text-align: right;
+    padding: 1rem;
+    background: #e3f2fd;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    color: #2c5aa0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .step-indicator {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .step {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .detail-label {
+        min-width: unset;
+        margin-right: 0;
+    }
+    
+    .selected-space-details {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .legend {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .time-slots-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .selection-item {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}予約申込 - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>スペース予約</h1>
+    <p>ご希望のスペース・日時を選択してください</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <form method="post" class="reservation-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.space.id_for_label }}">スペース種別 <span class="required">*</span></label>
+                {{ form.space }}
+                {% if form.space.errors %}
+                    <div class="error-message">
+                        {% for error in form.space.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.reservation_date.id_for_label }}">利用日 <span class="required">*</span></label>
+                {{ form.reservation_date }}
+                <small class="help-text">平日のみ、6日前まで予約可能</small>
+                {% if form.reservation_date.errors %}
+                    <div class="error-message">
+                        {% for error in form.reservation_date.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="{{ form.start_time.id_for_label }}">開始時間 <span class="required">*</span></label>
+                    {{ form.start_time }}
+                    <small class="help-text">1時間単位での予約となります</small>
+                    {% if form.start_time.errors %}
+                        <div class="error-message">
+                            {% for error in form.start_time.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group half">
+                    <label for="{{ form.end_time.id_for_label }}">終了時間 <span class="required">*</span></label>
+                    {{ form.end_time }}
+                    <small class="help-text">最低1時間からご利用可能</small>
+                    {% if form.end_time.errors %}
+                        <div class="error-message">
+                            {% for error in form.end_time.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.purpose.id_for_label }}">利用目的</label>
+                {{ form.purpose }}
+                <small class="help-text">会議、学習、作業などの用途をご記入ください（任意）</small>
+                {% if form.purpose.errors %}
+                    <div class="error-message">
+                        {% for error in form.purpose.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- 非フィールドエラー（フォーム全体のエラー） -->
+            {% if form.non_field_errors %}
+                <div class="error-message">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">予約を申し込む</button>
+                <a href="{% url 'spaces' %}" class="btn btn-outline">スペース一覧に戻る</a>
+            </div>
+        </form>
+
+        <!-- 注意事項 -->
+        <div class="form-footer">
+            <h4>ご利用について</h4>
+            <ul>
+                <li>営業時間: 平日 9:00〜18:00</li>
+                <li>予約可能期間: 6日前まで</li>
+                <li>予約単位: 1時間単位（9:00, 10:00など0分のみ）</li>
+                <li>最低利用時間: 1時間</li>
+                <li>キャンセル: 前日まで可能</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}スケジュール - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>予約可能スケジュール</h1>
+    <p>6日前までの予約状況を確認できます</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="schedule-container">
+    {% for schedule_date in schedule_dates %}
+        <div class="schedule-card">
+            <div class="schedule-header">
+                <h3>{{ schedule_date.date|date:"m月d日（D）" }}</h3>
+                <div class="date-info">{{ schedule_date.date|date:"Y年m月d日" }}</div>
+            </div>
+            
+            <div class="time-slots">
+                {% for slot in schedule_date.time_slots %}
+                    <div class="time-slot {% if slot.total_available == 0 %}full{% endif %}">
+                        <div class="time-range">
+                            {{ slot.start_time }} - {{ slot.end_time }}
+                        </div>
+                        <div class="availability-detail">
+                            {% if slot.total_available > 0 %}
+                                <div class="space-availability">
+                                    <span class="semi-private">
+                                        半個室: {{ slot.available_semi_private }}/{{ slot.total_semi_private }}
+                                    </span>
+                                    <span class="private">
+                                        完全個室: {{ slot.available_private }}/{{ slot.total_private }}
+                                    </span>
+                                </div>
+                            {% else %}
+                                <span class="full">満室</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="schedule-actions">
+                <a href="{% url 'reserve' %}?date={{ schedule_date.date|date:'Y-m-d' }}" class="btn btn-primary btn-sm">この日で予約</a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <p>予約可能な日程がありません</p>
+            <small>平日のみ予約可能です</small>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="page-actions">
+    <a href="{% url 'spaces' %}" class="btn btn-outline">スペース一覧</a>
+    <a href="{% url 'reserve' %}" class="btn btn-primary">新規予約</a>
+</div>
+
+<style>
+.schedule-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.schedule-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.schedule-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.schedule-header h3 {
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+.date-info {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.time-slots {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.time-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #27ae60;
+}
+
+.time-slot.full {
+    background-color: #ffe6e6;
+    border-left-color: #e74c3c;
+}
+
+.time-range {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.availability-detail .space-availability {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.availability-detail .semi-private {
+    color: #2980b9;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.availability-detail .private {
+    color: #8e44ad;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.availability-detail .full {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.schedule-actions {
+    text-align: center;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}スペース一覧 - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>利用可能スペース</h1>
+    <p>用途に合わせてスペースをお選びください</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="spaces-container">
+    {% for space in spaces %}
+        <div class="space-card">
+            <div class="space-header">
+                <h3 class="space-name">{{ space.name }}</h3>
+                <div class="space-type">{{ space.get_space_type_display }}</div>
+                <div class="space-price">{{ space.hourly_rate }}円<span>/時間</span></div>
+            </div>
+            
+            <div class="space-content">
+                <div class="space-info">
+                    <div class="info-item">
+                        <strong>収容人数:</strong> {{ space.capacity }}名
+                    </div>
+                    <div class="info-item">
+                        <strong>設備:</strong> {{ space.equipment }}
+                    </div>
+                    {% if space.description %}
+                        <div class="info-item">
+                            <strong>特徴:</strong> {{ space.description }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="space-features">
+                    {% if space.space_type == 'SEMI_PRIVATE' %}
+                        <div class="feature-tag">集中作業向け</div>
+                        <div class="feature-tag">リーズナブル</div>
+                    {% else %}
+                        <div class="feature-tag">完全個室</div>
+                        <div class="feature-tag">オンライン会議OK</div>
+                        <div class="feature-tag">ホワイトボード付き</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="space-actions">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'reserve' %}?space={{ space.id }}" class="btn btn-primary">このスペースを予約</a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={% url 'reserve' %}" class="btn btn-outline">ログインして予約</a>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <p>現在利用可能なスペースがありません</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% if user.is_authenticated %}
+    <div class="page-actions">
+        <a href="{% url 'schedule' %}" class="btn btn-outline">スケジュール確認</a>
+        <a href="{% url 'reserve' %}" class="btn btn-primary">新規予約</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+
+{% block title %}予約申込（終了時刻選択） - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>予約申込 - 終了時刻選択</h1>
+    <p>{{ date_display }} の {{ space.name }} での終了時刻を選択してください</p>
+    <div class="step-indicator">
+        <span class="step completed">1. 日付選択</span>
+        <span class="step completed">2. スペース・開始時刻選択</span>
+        <span class="step active">2.5. 終了時刻選択</span>
+        <span class="step">3. 予約確認</span>
+        <span class="step">4. 完了</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="reservation-step2-5">
+    <form method="post" action="{% url 'reserve_step3' %}" id="endTimeForm">
+        {% csrf_token %}
+        <input type="hidden" name="date" value="{{ date_string }}">
+        <input type="hidden" name="space_id" value="{{ space.id }}">
+        <input type="hidden" name="start_time" value="{{ start_time_str }}">
+        
+        <!-- 選択内容の確認 -->
+        <div class="selection-summary-section">
+            <h3>選択内容確認</h3>
+            <div class="current-selection">
+                <div class="selection-item">
+                    <span class="selection-label">利用日:</span>
+                    <span class="selection-value">{{ date_display }}</span>
+                </div>
+                <div class="selection-item">
+                    <span class="selection-label">スペース:</span>
+                    <span class="selection-value">{{ space.name }} ({{ space.get_space_type_display }})</span>
+                </div>
+                <div class="selection-item">
+                    <span class="selection-label">開始時刻:</span>
+                    <span class="selection-value">{{ start_time_str }}</span>
+                </div>
+                <div class="selection-item">
+                    <span class="selection-label">料金:</span>
+                    <span class="selection-value">{{ space.hourly_rate|floatformat:0 }}円/時間</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 終了時刻選択 -->
+        <div class="end-time-selection-section">
+            <h3>終了時刻選択</h3>
+            <p class="help-text">利用を終了する時刻を選択してください</p>
+            
+            {% if available_end_times %}
+                <div class="end-time-select-container">
+                    <label for="endTimeSelect" class="select-label">終了時刻:</label>
+                    <select name="end_time" id="endTimeSelect" class="end-time-select">
+                        <option value="">終了時刻を選択してください</option>
+                        {% for end_time in available_end_times %}
+                            <option value="{{ end_time.time_str }}" 
+                                    data-duration="{{ end_time.duration }}"
+                                    data-amount="{{ end_time.amount }}">
+                                {{ end_time.time_str }} ({{ end_time.duration }}時間 - {{ end_time.amount }}円)
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% else %}
+                <div class="no-options">
+                    <p>選択可能な終了時刻がありません。</p>
+                    <p>開始時刻を変更してください。</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- 選択された内容の表示 -->
+        <div class="selected-summary" id="selectedSummary" style="display: none;">
+            <h3>予約内容</h3>
+            <div class="summary-content" id="summaryContent">
+                <!-- 選択された内容がここに表示される -->
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'reserve_step2' date_string %}" class="btn btn-outline">スペース選択に戻る</a>
+            <button type="submit" class="btn btn-primary" id="confirmButton" disabled>予約内容を確認</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const endTimeSelect = document.getElementById('endTimeSelect');
+    const selectedSummary = document.getElementById('selectedSummary');
+    const summaryContent = document.getElementById('summaryContent');
+    const confirmButton = document.getElementById('confirmButton');
+    
+    endTimeSelect.addEventListener('change', function() {
+        if (this.value) {
+            const selectedOption = this.options[this.selectedIndex];
+            updateSelectedSummary(selectedOption);
+            confirmButton.disabled = false;
+            selectedSummary.style.display = 'block';
+        } else {
+            confirmButton.disabled = true;
+            selectedSummary.style.display = 'none';
+        }
+    });
+    
+    function updateSelectedSummary(selectedOption) {
+        const endTime = selectedOption.value;
+        const duration = selectedOption.dataset.duration;
+        const amount = selectedOption.dataset.amount;
+        
+        summaryContent.innerHTML = `
+            <div class="summary-details">
+                <div class="summary-row">
+                    <span class="summary-label">利用日:</span>
+                    <span class="summary-value">{{ date_display }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">スペース:</span>
+                    <span class="summary-value">{{ space.name }} ({{ space.get_space_type_display }})</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">利用時間:</span>
+                    <span class="summary-value">{{ start_time_str }} - ${endTime}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">利用時間数:</span>
+                    <span class="summary-value">${duration}時間</span>
+                </div>
+                <div class="summary-row total">
+                    <span class="summary-label">合計料金:</span>
+                    <span class="summary-value">${amount}円</span>
+                </div>
+            </div>
+        `;
+    }
+});
+</script>
+
+<style>
+.step-indicator {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.step {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #666;
+    border: 2px solid #e9ecef;
+}
+
+.step.active {
+    background-color: #2c5aa0;
+    color: white;
+    border-color: #2c5aa0;
+}
+
+.step.completed {
+    background-color: #27ae60;
+    color: white;
+    border-color: #27ae60;
+}
+
+.reservation-step2-5 {
+    margin-bottom: 3rem;
+}
+
+.selection-summary-section,
+.end-time-selection-section,
+.selected-summary {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.selection-summary-section h3,
+.end-time-selection-section h3,
+.selected-summary h3 {
+    color: #2c5aa0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 0.5rem;
+}
+
+.help-text {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.current-selection {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.selection-item {
+    display: flex;
+    align-items: center;
+}
+
+.selection-label {
+    font-weight: bold;
+    color: #333;
+    min-width: 120px;
+    margin-right: 1rem;
+}
+
+.selection-value {
+    color: #666;
+}
+
+.end-time-select-container {
+    margin-bottom: 1.5rem;
+}
+
+.select-label {
+    display: block;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.end-time-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.end-time-select:hover {
+    border-color: #2c5aa0;
+    box-shadow: 0 2px 8px rgba(44, 90, 160, 0.1);
+}
+
+.end-time-select:focus {
+    outline: none;
+    border-color: #2c5aa0;
+    box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+}
+
+.end-time-select option {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.no-options {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.summary-details {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.summary-row {
+    display: flex;
+    align-items: center;
+}
+
+.summary-row.total {
+    border-top: 2px solid #e3f2fd;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.summary-label {
+    font-weight: bold;
+    color: #333;
+    min-width: 120px;
+    margin-right: 1rem;
+}
+
+.summary-value {
+    color: #666;
+}
+
+.summary-row.total .summary-value {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .step-indicator {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .step {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .end-time-select {
+        font-size: 0.9rem;
+    }
+    
+    .selection-item,
+    .summary-row {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: flex-start;
+    }
+    
+    .selection-label,
+    .summary-label {
+        min-width: unset;
+        margin-right: 0;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

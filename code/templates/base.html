@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}iLスクエア予約システム{% endblock %}</title>
+    
+    <!-- CSS読み込み -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- ロゴ -->
+                <div class="logo">
+                    <a href="{% url 'top' %}">
+                        <h1>iLスクエア</h1>
+                    </a>
+                </div>
+                
+                <!-- ナビゲーション -->
+                <nav class="nav">
+                    {% if user.is_authenticated %}
+                        <!-- ログイン済みの場合 -->
+                        <span class="user-info">{{ user.last_name }} {{ user.first_name }}さん</span>
+                        <a href="{% url 'reserve_step1' %}" class="nav-link">予約する</a>
+                        <a href="{% url 'mypage' %}" class="nav-link">マイページ</a>
+                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link logout-btn">ログアウト</button>
+                        </form>
+                    {% else %}
+                        <!-- 未ログインの場合 -->
+                        <a href="{% url 'login' %}" class="nav-link">ログイン</a>
+                        <a href="{% url 'register' %}" class="nav-link btn-primary">新規登録</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+        <div class="container">
+            <!-- メッセージ表示 -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message message-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- ページタイトル -->
+            {% block page_title %}{% endblock %}
+
+            <!-- メインコンテンツ -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 iLearning. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

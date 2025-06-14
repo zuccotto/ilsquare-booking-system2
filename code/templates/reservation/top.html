@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}トップページ - iLスクエア予約システム{% endblock %}
+
+{% block content %}
+<!-- ヒーローセクション -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">iLスクエア予約システム</h1>
+        <p class="hero-subtitle">～学習スペースの予約～</p>
+        <p class="hero-description">
+            集中して学習や作業ができる個人スペースを<br>
+            簡単にオンラインで予約できます。
+        </p>
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'reserve_step1' %}" class="btn btn-primary btn-large">予約する</a>
+        {% else %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-large">今すぐ登録</a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- サービス紹介 -->
+<section class="services">
+    <div class="section-header">
+        <h2>利用可能なスペース</h2>
+        <p>用途に合わせて選べる2つのタイプ</p>
+    </div>
+    
+    <div class="service-grid">
+        <!-- 半個室 -->
+        <div class="service-card">
+            <div class="service-header">
+                <h3>個人スペース（半個室）</h3>
+                <div class="price">500円<span>/時間</span></div>
+            </div>
+            <div class="service-content">
+                <div class="service-info">
+                    <p><strong>ブース数:</strong> {{ semi_private_spaces.count }}</p>
+                    <p><strong>設備：</strong>ノートPC、外付けモニター、ヘッドセット</p>
+                    <p><strong>特徴：</strong>デスクが広めで演習に適したスペース</p>
+                </div>
+                <div class="service-features">
+                    <ul>
+                        <li>広いデスクで作業効率UP</li>
+                        <li>演習・実習に最適</li>
+                        <li>リーズナブルな料金</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 完全個室 -->
+        <div class="service-card">
+            <div class="service-header">
+                <h3>個人スペース（完全個室）</h3>
+                <div class="price">1,000円<span>/時間</span></div>
+            </div>
+            <div class="service-content">
+                <div class="service-info">
+                    <p><strong>ブース数:</strong> {{ private_spaces.count }}</p>
+                    <p><strong>設備：</strong>ノートPC、外付けモニター、ヘッドセット</p>
+                    <p><strong>特徴：</strong>防音・吸音仕様の完全個室</p>
+                </div>
+                <div class="service-features">
+                    <ul>
+                        <li>防音・吸音で集中力UP</li>
+                        <li>完全プライベート空間</li>
+                        <li>重要な作業に最適</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 利用方法 -->
+<section class="how-to-use">
+    <div class="section-header">
+        <h2>予約の流れ</h2>
+        <p>簡単3ステップで予約完了</p>
+    </div>
+    
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>日付選択</h3>
+                <p>利用したい日付を<br>平日カレンダーから選択</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>スペース選択</h3>
+                <p>用途に合わせて半個室または<br>完全個室を選択</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>時刻選択</h3>
+                <p>9:00-18:00の間で<br>開始・終了時刻を指定</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA（コールトゥアクション） -->
+<section class="cta">
+    {% if user.is_authenticated %}
+        <h2>今すぐ予約しませんか？</h2>
+        <p>空き状況を確認して、最適なスペースを予約しましょう</p>
+        <div class="cta-buttons">
+            <a href="{% url 'reserve_step1' %}" class="btn btn-primary">予約する</a>
+            <a href="{% url 'mypage' %}" class="btn btn-outline">マイページ</a>
+        </div>
+    {% else %}
+        <h2>まずは会員登録から始めましょう</h2>
+        <p>簡単な情報入力だけで、すぐに予約システムを利用できます</p>
+        <div class="cta-buttons">
+            <a href="{% url 'register' %}" class="btn btn-primary">新規登録</a>
+            <a href="{% url 'login' %}" class="btn btn-outline">ログイン</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

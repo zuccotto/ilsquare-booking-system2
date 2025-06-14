@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}予約履歴 - iLスクエア予約システム{% endblock %}
+
+{% block page_title %}
+<div class="page-header">
+    <h1>予約履歴</h1>
+    <p>現在の予約状況と利用履歴</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- 現在の予約 -->
+<section class="current-reservations">
+    <h2>現在の予約</h2>
+    
+    {% if current_reservations %}
+        <div class="reservation-list">
+            {% for reservation in current_reservations %}
+                <div class="reservation-item">
+                    <div class="reservation-info">
+                        <div class="reservation-date">
+                            <strong>{{ reservation.reservation_date|date:"m月d日（D）" }}</strong>
+                        </div>
+                        <div class="reservation-details">
+                            <p class="space-name">{{ reservation.space.name }}</p>
+                            <p class="time-slot">
+                                {{ reservation.start_time|time:"H:i" }} - {{ reservation.end_time|time:"H:i" }}
+                            </p>
+                            {% if reservation.purpose %}
+                                <p class="purpose">利用目的: {{ reservation.purpose }}</p>
+                            {% endif %}
+                            <p class="status status-{{ reservation.status|lower }}">
+                                {{ reservation.get_status_display }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="reservation-actions">
+                        <div class="amount">{{ reservation.total_amount }}円</div>
+                        <div class="action-buttons">
+                            <a href="{% url 'reservation_detail' reservation.id %}" class="btn btn-sm btn-outline">詳細</a>
+                            {% if reservation.status == 'CONFIRMED' %}
+                                <a href="{% url 'cancel_reservation' reservation.id %}" class="btn btn-sm btn-cancel">キャンセル</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>現在予約はありません</p>
+            <a href="{% url 'reserve' %}" class="btn btn-primary">新規予約</a>
+        </div>
+    {% endif %}
+</section>
+
+<!-- 過去の予約 -->
+<section class="past-reservations">
+    <h2>利用履歴</h2>
+    
+    {% if past_reservations %}
+        <div class="reservation-list">
+            {% for reservation in past_reservations %}
+                <div class="reservation-item past">
+                    <div class="reservation-info">
+                        <div class="reservation-date">
+                            <strong>{{ reservation.reservation_date|date:"m月d日（D）" }}</strong>
+                        </div>
+                        <div class="reservation-details">
+                            <p class="space-name">{{ reservation.space.name }}</p>
+                            <p class="time-slot">
+                                {{ reservation.start_time|time:"H:i" }} - {{ reservation.end_time|time:"H:i" }}
+                            </p>
+                            {% if reservation.purpose %}
+                                <p class="purpose">利用目的: {{ reservation.purpose }}</p>
+                            {% endif %}
+                            <p class="status status-{{ reservation.status|lower }}">
+                                {{ reservation.get_status_display }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="reservation-actions">
+                        <div class="amount">{{ reservation.total_amount }}円</div>
+                        <a href="{% url 'reservation_detail' reservation.id %}" class="btn btn-sm btn-outline">詳細</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>利用履歴はありません</p>
+        </div>
+    {% endif %}
+</section>
+
+<div class="page-actions">
+    <a href="{% url 'mypage' %}" class="btn btn-outline">マイページに戻る</a>
+    <a href="{% url 'reserve' %}" class="btn btn-primary">新規予約</a>
+</div>
+
+<style>
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+}
+
+.btn-cancel:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+}
+
+.status {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.status-confirmed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.reservation-item.past {
+    opacity: 0.8;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+</style>
+{% endblock %}
